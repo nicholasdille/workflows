@@ -25,15 +25,10 @@ jobs:
 
     - name: Docker meta
       id: docker_meta
-      uses: crazy-max/ghaction-docker-meta@v1
+      uses: docker/metadata-action@v3
       with:
         images: ${{ env.IMAGE_NAME }}
         tag-sha: true
-
-    - name: Dump steps context
-      env:
-        STEPS_CONTEXT: ${{ toJson(steps) }}
-      run: echo "$STEPS_CONTEXT"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -57,13 +52,13 @@ jobs:
         labels: ${{ steps.docker_meta.outputs.labels }}
 
     - name: Run Trivy vulnerability scanner
-      if: github.event_name != 'pull_request'
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: ${{ env.IMAGE_NAME }}:${{ steps.docker_meta.outputs.version }}
         format: 'template'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
 
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v1
