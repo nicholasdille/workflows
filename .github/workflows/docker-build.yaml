@@ -28,7 +28,15 @@ jobs:
       uses: docker/metadata-action@v3
       with:
         images: ${{ env.IMAGE_NAME }}
-        tag-sha: true
+        tags: |
+          type=sha
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
+          type=edge
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
